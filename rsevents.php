@@ -79,20 +79,16 @@ class PlgSearchRsevents extends JPlugin
 
         switch ($ordering) {
             case 'alpha':
-                $order = 'e.EventName ASC';
-                break;
             case 'category':
             case 'popular':
             case 'newest':
             case 'oldest':
             default:
-                $order = 'e.EventName DESC';
+                $order = 'e.EventName ASC';
         }
 
         $text	= $db->Quote('%'.$db->getEscaped($text, true).'%', false);
         $query	= $db->getQuery(true);
-
-        $return = array();
 
         $query->select("e.EventName AS title,
                         e.EventSubtitle as section,
@@ -101,29 +97,30 @@ class PlgSearchRsevents extends JPlugin
                         '2' AS browsernav,
                         e.IdEvent");
         $query->from('#__rsevents_events AS e');
-        $query->where('(e.EventName LIKE '. $text .' OR e.EventDescription LIKE '. $text .') AND e.published = 1 ');
+        $query->leftJoin('#__rsevents_locations AS l ON e.IdLocation=l.IdLocation');
+        $query->where('e.published=1', 'AND');
+        $where = "e.EventName LIKE $text";
+        if ($this->params->get('enable_event_description_search', TRUE))
+            $where .= "OR e.EventDescription LIKE $text";
+        if ($this->params->get('enable_event_location_search', TRUE)) {
+            $where .= "OR l.LocationCity LIKE $text";
+            $where .= "OR l.LocationAddress LIKE $text";
+            $where .= "OR l.LocationZip LIKE $text";
+        }
+        $query->where($where, 'AND');
         $query->group('e.IdEvent');
         $query->order($order);
 
         $db->setQuery($query, 0, $limit);
         $rows = $db->loadObjectList();
 
-        if ($rows)
-        {
+        if ($rows) {
             $count = count($rows);
-            for ($i = 0; $i < $count; $i++)
-            {
-                $rows[$i]->href = JRoute::_('index.php?option=com_rsevents&view=events&layout=show&cid='.$rows[$i]->IdEvent.':'.JFilterOutput::stringURLSafe($rows[$i]->title),false);
-            }
-
-            $return = array();
-            foreach($rows AS $key => $category)
-            {
-                if (searchHelper::checkNoHTML($category, $searchText, array('name', 'title', 'text')))
-                    $return[] = $category;
+            for ($i = 0; $i < $count; $i++) {
+                $rows[$i]->href = JRoute::_('index.php?option=com_rsevents&view=events&layout=show&cid='.
+                        $rows[$i]->IdEvent.':'.JFilterOutput::stringURLSafe($rows[$i]->title), false);
             }
         }
-
-        return $return;
+        return $rows;
     }
 }
