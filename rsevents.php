@@ -99,14 +99,19 @@ class PlgSearchRsevents extends JPlugin
         $query->from('#__rsevents_events AS e');
         $query->leftJoin('#__rsevents_locations AS l ON e.IdLocation=l.IdLocation');
         $query->where('e.published=1', 'AND');
-        $where = "e.EventName LIKE $text";
+        $where = "(";
+        $where .= "e.EventName LIKE $text";
+        $where .= "OR e.EventSubtitle LIKE $text";
         if ($this->params->get('enable_event_description_search', TRUE))
             $where .= "OR e.EventDescription LIKE $text";
         if ($this->params->get('enable_event_location_search', TRUE)) {
             $where .= "OR l.LocationCity LIKE $text";
             $where .= "OR l.LocationAddress LIKE $text";
             $where .= "OR l.LocationZip LIKE $text";
+            $where .= "OR e.EventPhone LIKE $text";
+            $where .= "OR e.EventHost LIKE $text";
         }
+        $where .= ")";
         $query->where($where, 'AND');
         $query->group('e.IdEvent');
         $query->order($order);
