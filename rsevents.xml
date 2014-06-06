@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="1.6" type="plugin" group="search">
+	<name>Search - RSEvents</name>
+	<author>RSJoomla</author>
+	<creationDate>January 2011</creationDate>
+	<copyright>Copyright (C) 2005 - 2011 www.rsjoomla.com. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later</license>
+	<authorEmail>support@rsjoomla.com</authorEmail>
+	<authorUrl>www.rsjoomla.com</authorUrl>
+	<version>1.0.0</version>
+	<description>Allows Searching for RSEvents events.</description>
+	<files>
+		<filename plugin="rsevents">rsevents.php</filename>
+		<filename>index.html</filename>
+	</files>
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="search_limit" type="text"
+					default="50"
+					description="JFIELD_PLG_SEARCH_SEARCHLIMIT_DESC"
+					label="JFIELD_PLG_SEARCH_SEARCHLIMIT_LABEL"
+					size="5"
+				/>
+			</fieldset>
+		</fields>
+	</config>
+</extension>
