@@ -81,7 +81,6 @@ class PlgSearchRsevents extends JPlugin
             case 'alpha':
                 $order = 'e.EventName ASC';
                 break;
-
             case 'category':
             case 'popular':
             case 'newest':
@@ -95,7 +94,12 @@ class PlgSearchRsevents extends JPlugin
 
         $return = array();
 
-        $query->select('e.EventName as title, e.EventDescription AS text, e.EventStartDate AS created, "2" AS browsernav, e.IdEvent');
+        $query->select("e.EventName AS title,
+                        e.EventSubtitle as section,
+                        e.EventDescription AS text,
+                        e.EventStartDate AS created,
+                        '2' AS browsernav,
+                        e.IdEvent");
         $query->from('#__rsevents_events AS e');
         $query->where('(e.EventName LIKE '. $text .' OR e.EventDescription LIKE '. $text .') AND e.published = 1 ');
         $query->group('e.IdEvent');
@@ -110,7 +114,6 @@ class PlgSearchRsevents extends JPlugin
             for ($i = 0; $i < $count; $i++)
             {
                 $rows[$i]->href = JRoute::_('index.php?option=com_rsevents&view=events&layout=show&cid='.$rows[$i]->IdEvent.':'.JFilterOutput::stringURLSafe($rows[$i]->title),false);
-                $rows[$i]->section	= 'RSEvents!';
             }
 
             $return = array();
