@@ -10,6 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
+require_once(JPATH_SITE.DS.'components'.DS.'com_rsevents'.DS.'helpers'.DS.'rsevents.php');
 jimport('joomla.plugin.plugin');
 
 /**
@@ -62,6 +63,7 @@ class PlgSearchRsevents extends JPlugin
         $db		= JFactory::getDbo();
         $user	= JFactory::getUser();
         $app	= JFactory::getApplication();
+        $rseventsConfig = rseventsHelper::getConfig();
         $searchText = $text;
 
         if (is_array($areas)) {
@@ -94,6 +96,7 @@ class PlgSearchRsevents extends JPlugin
                         e.EventSubtitle as section,
                         e.EventDescription AS text,
                         e.EventStartDate AS created,
+                        e.EventIcon as eventicon,
                         '2' AS browsernav,
                         e.IdEvent");
         $query->from('#__rsevents_events AS e');
@@ -124,6 +127,12 @@ class PlgSearchRsevents extends JPlugin
             for ($i = 0; $i < $count; $i++) {
                 $rows[$i]->href = JRoute::_('index.php?option=com_rsevents&view=events&layout=show&cid='.
                         $rows[$i]->IdEvent.':'.JFilterOutput::stringURLSafe($rows[$i]->title), false);
+
+                //Icon
+                $smallicon = str_replace('.'.JFile::getExt($rows[$i]->eventicon),'_'.$rseventsConfig['event.icon.small'].
+                    '.'.JFile::getExt($rows[$i]->eventicon),$rows[$i]->eventicon);
+                if (!empty($smallicon))
+                    $rows[$i]->image = JURI::root().'components/com_rsevents/assets/images/thumbs/'.$smallicon;
             }
         }
         return $rows;
